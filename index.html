@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Fairy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+
+        /* Pastel & Glassmorphism Theme */
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            text-align: center;
+            color: #555;
+            transition: background 1.5s ease, color 1.5s ease;
+        }
+
+        /* Dark Mode Theme */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #ccc;
+        }
+        body.dark-mode .glass-panel, body.dark-mode .polaroid, body.dark-mode .modal-content {
+            background: rgba(0, 0, 0, 0.6);
+            border-color: #333;
+            color: #aaa;
+        }
+        body.dark-mode h1, body.dark-mode h2 { color: #5a5a7a; }
+        body.dark-mode button { background: #333; color: #888; border-color: #444; }
+
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 30px 20px 100px 20px;
+            box-sizing: border-box;
+        }
+
+        h1, h2 {
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 5px;
+        }
+
+        p.subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 30px;
+        }
+
+        /* Glass Panels */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
+
+        /* Passcode Screen */
+        #login-screen { display: block; margin-top: 20vh; }
+        #login-screen input {
+            width: 60%; padding: 15px; font-size: 20px; text-align: center;
+            border: 2px solid #fff; border-radius: 15px; margin-bottom: 20px;
+            outline: none; letter-spacing: 5px; color: #555; background: rgba(255,255,255,0.7);
+        }
+        #login-screen button {
+            background: #fff; color: #ffb7b2; border: none; padding: 15px 30px;
+            border-radius: 15px; font-size: 16px; font-weight: bold; cursor: pointer;
+            width: 60%; transition: 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        #error-msg { color: #ff4d4d; font-size: 13px; margin-top: 10px; display: none; font-weight: bold; }
+
+        /* Main App */
+        #main-app { display: none; animation: fadeIn 0.8s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Clocks */
+        .clock-container { display: flex; justify-content: space-around; font-weight: bold; }
+        .clock { display: flex; flex-direction: column; }
+        .clock-time { font-size: 20px; color: #fff; }
+        .clock-label { font-size: 12px; color: rgba(255,255,255,0.8); text-transform: uppercase; }
+
+        /* Open When Buttons */
+        .grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        .grid button {
+            background: rgba(255, 255, 255, 0.7); border: none; border-radius: 15px;
+            padding: 15px; font-size: 15px; color: #ff758c; font-weight: 600;
+            cursor: pointer; transition: 0.2s; text-align: left;
+        }
+        .grid button:active { transform: scale(0.97); background: #fff; }
+
+        /* Photo & Video Gallery */
+        .gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .polaroid {
+            background: #fff; padding: 8px 8px 25px 8px; border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); transform: rotate(-2deg);
+            cursor: pointer; transition: transform 0.2s;
+        }
+        .polaroid:nth-child(even) { transform: rotate(3deg); }
+        .polaroid:active { transform: scale(0.95); }
+        .polaroid img, .polaroid video { 
+            width: 100%; height: 120px; object-fit: cover; border-radius: 3px; background: #ddd; pointer-events: none; 
+        }
+
+        /* Lightbox for Enlarger */
+        #lightbox {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 2000;
+            justify-content: center; align-items: center; flex-direction: column;
+        }
+        #lightbox-content { max-width: 90%; max-height: 80vh; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #lightbox-close { margin-top: 20px; background: #fff; color: #333; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+
+        /* Music Player */
+        .music-player {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 400px; background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(10px); border-radius: 30px; padding: 10px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; box-sizing: border-box;
+        }
+        .song-info { font-size: 13px; font-weight: bold; color: #555; display: flex; align-items: center; gap: 10px; }
+        .play-btn { background: #ffb7b2; color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 16px; cursor: pointer; }
+
+        /* Floating Letter */
+        .floating-letter {
+            display: none; /* Changed: Hidden by default on the login screen */
+            position: fixed; bottom: 90px; right: 20px; background: #ff758c;
+            color: #fff; width: 55px; height: 55px; border-radius: 50%;
+            justify-content: center; align-items: center;
+            font-size: 24px; box-shadow: 0 4px 15px rgba(255, 117, 140, 0.4);
+            cursor: pointer; animation: bounce 2s infinite; z-index: 100;
+        }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        /* Timer Display */
+        #official-timer-container { display: none; margin-top: 15px; font-weight: bold; color: #ff758c; background: #fff; padding: 15px; border-radius: 15px; }
+
+        /* Modals */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+            justify-content: center; align-items: center; padding: 20px; z-index: 1000; box-sizing: border-box;
+        }
+        .modal-content {
+            background: #fff; padding: 30px; border-radius: 20px; max-width: 350px;
+            text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; transition: 0.3s;
+        }
+        .modal-text { font-size: 16px; line-height: 1.6; color: #444; margin-bottom: 25px; }
+        .close-btn { background: #e2f0cb; border: none; padding: 12px 25px; border-radius: 12px; color: #555; font-weight: bold; cursor: pointer; width: 100%; }
+        
+        /* Proposal Modal Buttons */
+        .proposal-btns { display: none; gap: 10px; margin-top: 20px; }
+        .btn-yes { background: #ffb7b2; color: #fff; border: none; padding: 12px; border-radius: 10px; flex: 1; font-weight: bold; cursor: pointer; }
+        .btn-no { background: #eee; color: #888; border: none; padding: 12px; border-radius: 10px; flex: 1; font-weight: bold; cursor: pointer; }
+        .btn-next { background: #ffb7b2; color: #fff; border: none; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="Tahanan.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="app-container">
+        
+        <div id="login-screen">
+            <h1>Hey Ms. Andrea <3</h1>
+            <p class="subtitle">Enter your passcode</p>
+            <input type="password" id="passcode" inputmode="numeric" maxlength="4" placeholder="••••">
+            <br>
+            <button onclick="checkPasscode()">Unlock</button>
+            <div id="error-msg">Incorrect passcode. Try again.</div>
+        </div>
+
+        <div id="main-app">
+            
+            <div class="glass-panel clock-container">
+                <div class="clock">
+                    <span class="clock-label">Medan 🇮🇩</span>
+                    <span class="clock-time" id="time-medan">--:--</span>
+                </div>
+                <div class="clock">
+                    <span class="clock-label">Abu Dhabi 🇦🇪</span>
+                    <span class="clock-time" id="time-abudhabi">--:--</span>
+                </div>
+            </div>
+
+            <h1>Open When...</h1>
+            <p class="subtitle">A quiet reminder, whenever you need it.</p>
+
+            <div class="glass-panel grid" id="button-container">
+                </div>
+
+            <div id="official-timer-container">
+                <div style="font-size: 14px; color:#888;">You have been officially mine for:</div>
+                <div id="timer-display" style="font-size: 18px; margin-top: 5px;"></div>
+            </div>
+
+            <h2>You Miss Me?</h2>
+            <div class="glass-panel gallery-grid">
+                <div class="polaroid" onclick="openLightbox(this)">
+                    <img src="1.jpg" alt="1">
+                </div>
+                
+                <div class="polaroid" onclick="openLightbox(this)">
+                    <video autoplay loop muted playsinline>
+                        <source src="2.mp4" type="video/mp4">
+                    </video>
+                </div>
+
+                <div class="polaroid" onclick="openLightbox(this)">
+                    <img src="3.jpg" alt="3">
+                </div>
+                <div class="polaroid" onclick="openLightbox(this)">
+                    <img src="4.jpg" alt="4">
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="floating-letter" class="floating-letter" onclick="openProposal()">💌</div>
+
+    <div class="music-player" id="music-player" style="display: none;">
+        <div class="song-info">
+            <span>🎵</span>
+            <span>Ako ang Tahanan mo</span>
+        </div>
+        <button class="play-btn" id="play-btn" onclick="toggleMusic()">▶</button>
+    </div>
+
+    <div id="lightbox">
+        <div id="lightbox-media-container"></div>
+        <button id="lightbox-close" onclick="closeLightbox()">Close</button>
+    </div>
+
+    <div id="msg-modal" class="modal">
+        <div class="modal-content">
+            <div id="msg-modal-text" class="modal-text"></div>
+            <button class="close-btn" onclick="closeMsgModal()">Close</button>
+        </div>
+    </div>
+
+    <div id="proposal-modal" class="modal">
+        <div class="modal-content">
+            <div id="proposal-text" class="modal-text"></div>
+            
+            <button id="btn-next" class="btn-next" onclick="nextProposalMessage()">Next</button>
+
+            <div id="proposal-btns" class="proposal-btns">
+                <button class="btn-yes" onclick="answerYes()">Yes</button>
+                <button class="btn-no" onclick="answerNo()">No</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CORRECT_PASSCODE = "2527"; 
+        let noCount = 0;
+        let timerInterval;
+
+        // --- OPEN WHEN MESSAGES ---
+        const messages = [
+            { label: "You're doubting my love", text: "Every word I've said to you is true. You didn't force me to love you; loving you is the easiest thing I've ever done." },
+            { label: "You feel alone", text: "Even during this reset, you are not alone. My heart is still quietly right beside you." },
+            { label: "You're overthinking", text: "Like we promised each other, it's only you. I'm not entertaining anyone else, and I never will." },
+            { label: "You need comfort", text: "Take a deep breath. We are going to be okay. Get some good rest tonight. I love yoü." }
+        ];
+
+        // --- PROPOSAL SEQUENCE MESSAGES ---
+        const proposalSequence = [
+            "Hey gorgg...",
+            "I’m sorry if it took me a while to finally say this, but I wanted to be sure I had the right words. You have been so incredibly thoughtful of me.",
+            "Patiently caring for me in ways I never expected, i really love you so much",
+            "And the thought of being without you terrifies me. I never want you to go. I want you by my side for all of it.",
+            "Will you be my girlfriend? Having a proper date to celebrate just the two of us sounds absolutely amazing right now."
+        ];
+        let currentProposalIndex = 0;
+
+        // Init App
+        function initApp() {
+            const container = document.getElementById('button-container');
+            messages.forEach(msg => {
+                let btn = document.createElement('button');
+                btn.innerText = "♡ " + msg.label;
+                btn.onclick = () => showMsgModal(msg.text);
+                container.appendChild(btn);
+            });
+
+            setInterval(updateClocks, 1000);
+            updateClocks();
+
+            const savedDate = localStorage.getItem("officialStartDate");
+            if (savedDate) {
+                document.getElementById('floating-letter').style.display = 'none';
+                document.getElementById('official-timer-container').style.display = 'block';
+                startTimer(parseInt(savedDate));
+            } else {
+                // Show the floating letter ONLY after successful login and if she hasn't clicked 'Yes'
+                document.getElementById('floating-letter').style.display = 'flex';
+            }
+        }
+
+        // Login
+        function checkPasscode() {
+            if (document.getElementById('passcode').value === CORRECT_PASSCODE) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                document.getElementById('music-player').style.display = 'flex';
+                
+                const bgMusic = document.getElementById('bg-music');
+                bgMusic.play().catch(e => console.log("Audio autoplay blocked"));
+                document.getElementById('play-btn').innerText = "⏸";
+                
+                initApp();
+            } else {
+                document.getElementById('error-msg').style.display = 'block';
+                document.getElementById('passcode').value = '';
+            }
+        }
+
+        // Clocks
+        function updateClocks() {
+            const opts = { hour: '2-digit', minute: '2-digit', hour12: true };
+            document.getElementById('time-medan').innerText = new Intl.DateTimeFormat('en-US', { ...opts, timeZone: 'Asia/Jakarta' }).format(new Date());
+            document.getElementById('time-abudhabi').innerText = new Intl.DateTimeFormat('en-US', { ...opts, timeZone: 'Asia/Dubai' }).format(new Date());
+        }
+
+        // Music Toggle
+        function toggleMusic() {
+            const audio = document.getElementById('bg-music');
+            const btn = document.getElementById('play-btn');
+            if (audio.paused) { audio.play(); btn.innerText = "⏸"; } 
+            else { audio.pause(); btn.innerText = "▶"; }
+        }
+
+        // Open When Modals
+        function showMsgModal(text) {
+            document.getElementById('msg-modal-text').innerText = text;
+            document.getElementById('msg-modal').style.display = 'flex';
+        }
+        function closeMsgModal() { document.getElementById('msg-modal').style.display = 'none'; }
+        
+        // --- LIGHTBOX LOGIC ---
+        function openLightbox(element) {
+            const media = element.querySelector('img, video').cloneNode(true);
+            media.id = "lightbox-content";
+            
+            if (media.tagName === 'VIDEO') {
+                media.controls = true; 
+                media.muted = false;   
+            }
+
+            const container = document.getElementById('lightbox-media-container');
+            container.innerHTML = '';
+            container.appendChild(media);
+            document.getElementById('lightbox').style.display = 'flex';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+            document.getElementById('lightbox-media-container').innerHTML = ''; 
+        }
+
+        // --- PROPOSAL LOGIC ---
+        function openProposal() {
+            currentProposalIndex = 0;
+            noCount = 0;
+            document.getElementById('proposal-modal').style.display = 'flex';
+            document.getElementById('btn-next').style.display = 'block';
+            document.getElementById('proposal-btns').style.display = 'none';
+            document.getElementById('proposal-text').innerText = proposalSequence[currentProposalIndex];
+        }
+
+        function nextProposalMessage() {
+            currentProposalIndex++;
+            if (currentProposalIndex < proposalSequence.length) {
+                document.getElementById('proposal-text').innerText = proposalSequence[currentProposalIndex];
+            } else {
+                document.getElementById('proposal-text').innerText = "Will you officially be my girlfriend?";
+                document.getElementById('btn-next').style.display = 'none';
+                document.getElementById('proposal-btns').style.display = 'flex';
+            }
+        }
+
+        function answerNo() {
+            noCount++;
+            const textEl = document.getElementById('proposal-text');
+            if (noCount < 5) {
+                textEl.innerText = "ohh its a misclick, i give you another chance.";
+            } else {
+                textEl.innerText = "ohh.. okay.. i understand.";
+                document.getElementById('proposal-btns').style.display = 'none';
+                document.body.classList.add('dark-mode');
+                setTimeout(() => { document.getElementById('proposal-modal').style.display = 'none'; }, 3000);
+            }
+        }
+
+        function answerYes() {
+            document.getElementById('proposal-modal').style.display = 'none';
+            document.getElementById('floating-letter').style.display = 'none';
+            document.getElementById('official-timer-container').style.display = 'block';
+            
+            const now = Date.now();
+            localStorage.setItem("officialStartDate", now.toString());
+            startTimer(now);
+        }
+
+        // Timer Logic
+        function startTimer(startDate) {
+            if(timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const now = Date.now();
+                const diff = now - startDate;
+
+                let seconds = Math.floor((diff / 1000) % 60);
+                let minutes = Math.floor((diff / 1000 / 60) % 60);
+                let hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                let days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                
+                let years = Math.floor(days / 365);
+                days %= 365;
+                let months = Math.floor(days / 30);
+                days %= 30;
+
+                document.getElementById('timer-display').innerText = 
+                    `${years}Y ${months}M ${days}D\n${hours}h ${minutes}m ${seconds}s`;
+            }, 1000);
+        }
+    </script>
+
+</body>
+</html>
