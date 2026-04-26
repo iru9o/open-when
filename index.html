@@ -7,7 +7,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
 
-        /* Pastel & Glassmorphism Theme */
+        /* Pastel & Glassmorphism Theme (Default) */
         body {
             font-family: 'Nunito', sans-serif;
             background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
@@ -20,9 +20,52 @@
             text-align: center;
             color: #555;
             transition: background 1.5s ease, color 1.5s ease;
+            position: relative;
+            z-index: 1;
         }
 
-        /* Dark Mode Theme */
+        /* ----- FAIRY GLITTER VIBES THEME ----- */
+        body.fairy-mode {
+            background: linear-gradient(120deg, #fccb90 0%, #d57eeb 100%);
+        }
+        
+        /* CSS Glitter/Sparkle Overlay */
+        body.fairy-mode::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.3) 2px, transparent 4px),
+                radial-gradient(white, rgba(255,255,255,.2) 1px, transparent 3px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 4px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            animation: glitter 3s linear infinite alternate;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        @keyframes glitter {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        body.fairy-mode .glass-panel {
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+        }
+
+        body.fairy-mode h1, body.fairy-mode h2 {
+            color: #fff;
+            text-shadow: 0 0 10px #ff758c, 0 0 20px #ff758c;
+        }
+
+        body.fairy-mode #official-timer-container {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            border: 2px solid #ffb7b2;
+        }
+
+        /* ----- DARK MODE THEME ----- */
         body.dark-mode {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: #ccc;
@@ -34,7 +77,19 @@
         }
         body.dark-mode h1, body.dark-mode h2 { color: #5a5a7a; }
         body.dark-mode button { background: #333; color: #888; border-color: #444; }
+        
+        /* Dark Theme Love Letter */
+        body.dark-mode .floating-letter {
+            background: #1a1a2e;
+            color: #444;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            border: 1px solid #333;
+            animation: none; /* Stops the happy bouncing */
+            opacity: 0.7;
+        }
 
+
+        /* Base App Styling */
         .app-container {
             width: 100%;
             max-width: 450px;
@@ -46,6 +101,7 @@
             color: #fff;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
             margin-bottom: 5px;
+            transition: 1s ease;
         }
 
         p.subtitle {
@@ -63,6 +119,7 @@
             padding: 20px;
             margin-bottom: 25px;
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            transition: 1.5s ease;
         }
 
         /* Passcode Screen */
@@ -133,17 +190,18 @@
 
         /* Floating Letter */
         .floating-letter {
-            display: none; /* Changed: Hidden by default on the login screen */
+            display: none; /* Hidden by default on login screen */
             position: fixed; bottom: 90px; right: 20px; background: #ff758c;
             color: #fff; width: 55px; height: 55px; border-radius: 50%;
             justify-content: center; align-items: center;
             font-size: 24px; box-shadow: 0 4px 15px rgba(255, 117, 140, 0.4);
             cursor: pointer; animation: bounce 2s infinite; z-index: 100;
+            transition: 1s ease;
         }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
         /* Timer Display */
-        #official-timer-container { display: none; margin-top: 15px; font-weight: bold; color: #ff758c; background: #fff; padding: 15px; border-radius: 15px; }
+        #official-timer-container { display: none; margin-top: 15px; font-weight: bold; color: #ff758c; background: #fff; padding: 15px; border-radius: 15px; transition: 1.5s ease; }
 
         /* Modals */
         .modal {
@@ -272,7 +330,7 @@
         // --- OPEN WHEN MESSAGES ---
         const messages = [
             { label: "You're doubting my love", text: "Every word I've said to you is true. You didn't force me to love you; loving you is the easiest thing I've ever done." },
-            { label: "You feel alone", text: "Anywhere you are, you are not alone. My heart is still quietly right beside you." },
+            { label: "You feel alone", text: "Even during this reset, you are not alone. My heart is still quietly right beside you." },
             { label: "You're overthinking", text: "Like we promised each other, it's only you. I'm not entertaining anyone else, and I never will." },
             { label: "You need comfort", text: "Take a deep breath. We are going to be okay. Get some good rest tonight. I love yoü." }
         ];
@@ -304,9 +362,9 @@
             if (savedDate) {
                 document.getElementById('floating-letter').style.display = 'none';
                 document.getElementById('official-timer-container').style.display = 'block';
+                document.body.classList.add('fairy-mode'); // Turns on Fairy Mode if already accepted!
                 startTimer(parseInt(savedDate));
             } else {
-                // Show the floating letter ONLY after successful login and if she hasn't clicked 'Yes'
                 document.getElementById('floating-letter').style.display = 'flex';
             }
         }
@@ -372,7 +430,7 @@
             document.getElementById('lightbox-media-container').innerHTML = ''; 
         }
 
-        // PROPOSAL LOGIC
+        // --- PROPOSAL LOGIC ---
         function openProposal() {
             currentProposalIndex = 0;
             noCount = 0;
@@ -401,7 +459,11 @@
             } else {
                 textEl.innerText = "ohh.. okay.. i understand.";
                 document.getElementById('proposal-btns').style.display = 'none';
+                
+                // Turn on Dark Mode
                 document.body.classList.add('dark-mode');
+                document.body.classList.remove('fairy-mode');
+
                 setTimeout(() => { document.getElementById('proposal-modal').style.display = 'none'; }, 3000);
             }
         }
@@ -411,6 +473,10 @@
             document.getElementById('floating-letter').style.display = 'none';
             document.getElementById('official-timer-container').style.display = 'block';
             
+            // Turn on Fairy Mode
+            document.body.classList.add('fairy-mode');
+            document.body.classList.remove('dark-mode');
+
             const now = Date.now();
             localStorage.setItem("officialStartDate", now.toString());
             startTimer(now);
